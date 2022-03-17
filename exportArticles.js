@@ -10,14 +10,13 @@ const fs = require("fs");
 const axios = require("axios");
 const token = process.env.ZENDESK_TOKEN;
 const encoded = Buffer.from(
-  "christopher.mcardle@perficient.com/token:" + token
+  "lara.keenan@perficient.com/token:" + token
 ).toString("base64");
 
-let brand = "perficient";
-let url = `https://${brand}.zendesk.com/api/v2/help_center/en-us/articles`;
 let log = [];
-// Fetches the article to be moved
-async function exportArticles() {
+
+async function exportTwilioFlex() {
+  let url = `https://perficient.zendesk.com/api/v2/help_center/en-us/articles`;
   let response;
   while (url) {
     response = await axios.get(`${url}`, {
@@ -25,47 +24,128 @@ async function exportArticles() {
     });
 
     if (response.status != 200) {
-      console.log(`Failed to retrieve articles with error ${response.status}`);
+      console.log(
+        `Failed to retrieve Twilio Flex articles with error ${response.status}`
+      );
       return;
     }
 
     let data = response.data;
-    console.log("RESPONSEEEE", data["articles"]);
-
     for (const article of data["articles"]) {
-      console.log("copied!", article);
+      log.push(article);
+    }
+    url = data.next_page;
+  }
+  exportAmazonConnect();
+}
+
+async function exportAmazonConnect() {
+  let url = `https://prftamazonconnect.zendesk.com/api/v2/help_center/en-us/articles`;
+  let response;
+  while (url) {
+    response = await axios.get(`${url}`, {
+      headers: { Authorization: `Basic ${encoded}` },
+    });
+
+    if (response.status != 200) {
+      console.log(
+        `Failed to retrieve Amazon Connect articles with error ${response.status}`
+      );
+      return;
+    }
+
+    let data = response.data;
+    for (const article of data["articles"]) {
+      log.push(article);
+    }
+    url = data.next_page;
+  }
+  exportClarityConnect();
+}
+
+async function exportClarityConnect() {
+  let url = `https://prft-cconnect.zendesk.com/api/v2/help_center/en-us/articles`;
+  let response;
+  while (url) {
+    response = await axios.get(`${url}`, {
+      headers: { Authorization: `Basic ${encoded}` },
+    });
+
+    if (response.status != 200) {
+      console.log(
+        `Failed to retrieve Clarity Connect articles with error ${response.status}`
+      );
+      return;
+    }
+
+    let data = response.data;
+    for (const article of data["articles"]) {
+      log.push(article);
+    }
+    url = data.next_page;
+  }
+  exportConverge();
+}
+
+async function exportConverge() {
+  let url = `https://prft-converge.zendesk.com/api/v2/help_center/en-us/articles`;
+  let response;
+  while (url) {
+    response = await axios.get(`${url}`, {
+      headers: { Authorization: `Basic ${encoded}` },
+    });
+
+    if (response.status != 200) {
+      console.log(
+        `Failed to retrieve Converge articles with error ${response.status}`
+      );
+      return;
+    }
+
+    let data = response.data;
+    for (const article of data["articles"]) {
+      log.push(article);
+    }
+    url = data.next_page;
+  }
+  exportMso();
+}
+
+async function exportMso() {
+  let url = `https://prft-mso.zendesk.com/api/v2/help_center/en-us/articles`;
+  let response;
+  while (url) {
+    response = await axios.get(`${url}`, {
+      headers: { Authorization: `Basic ${encoded}` },
+    });
+
+    if (response.status != 200) {
+      console.log(
+        `Failed to retrieve MSO articles with error ${response.status}`
+      );
+      return;
+    }
+
+    let data = response.data;
+    for (const article of data["articles"]) {
       log.push(article);
     }
     url = data.next_page;
   }
 
   let jsonLogs = JSON.stringify(log);
+  var today = new Date();
+  var dd = String(today.getDate()).padStart(2, "0");
+  var mm = String(today.getMonth() + 1).padStart(2, "0"); //January is 0!
+  var yyyy = today.getFullYear();
 
-  fs.writeFile("articles5.json", jsonLogs, (err) => {
+  today = mm + "-" + dd + "-" + yyyy;
+  fs.writeFile(`backups/Backup-${today}.json`, jsonLogs, (err) => {
     if (err) console.log(err);
     else {
       console.log("File written successfully\n");
-      // console.log("The written has the following contents:");
-      // console.log(fs.readFileSync("articles3.txt", "utf8"));
     }
   });
 }
 
-exportArticles();
-
-//   let domainName;
-//   if (twilioFlexIds.includes(fromSection)) {
-//     domainName = "perficient";
-//   } else if (amazonConnectIds.includes(fromSection)) {
-//     domainName = "prftamazonconnect";
-//   } else if (clarityConnectIds.includes(fromSection)) {
-//     domainName = "prft-cconnect";
-//   } else if (convergeIds.includes(fromSection)) {
-//     domainName = "prft-converge";
-//   } else if (msoIds.includes(fromSection)) {
-//     domainName = "prft-mso";
-//   } else {
-//     console.log("COULDNT FIND A MATCH. PLEASE ENSURE YOUR IDS ARE ACCURATE");
-//     return;
-//   }
-
+exportTwilioFlex();
