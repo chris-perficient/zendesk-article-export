@@ -46,7 +46,7 @@ async function downloadImage(brand, articleId) {
       }
     }
   } catch {
-    (e) => console.log("ERRORRR", e);
+    (e) => console.log("ERROR fetching attachment", e);
   }
 }
 
@@ -54,29 +54,30 @@ async function exportTwilioFlex() {
   let brand = "perficient";
   let url = `https://${brand}.zendesk.com/api/v2/help_center/en-us/articles`;
   let response;
-  try {
-    while (url) {
+  while (url) {
+    try {
       response = await axios.get(url, {
         headers: { Authorization: `Basic ${encoded}` },
       });
-
-      if (response.status != 200) {
-        console.log(
-          `Failed to retrieve Twilio Flex articles with error ${response.status}`
-        );
-        return;
-      }
-
-      let data = response.data;
-      for (const article of data["articles"]) {
-        downloadImage(brand, article.id);
-        log.push(article);
-      }
-      url = data.next_page;
+    } catch {
+      (err) => console.log("ERROR IN TWILIO FLEX", err);
     }
-  } catch {
-    (e) => console.log("ERROR IN TWILIO FLEX", e);
+
+    if (response.status != 200) {
+      console.log(
+        `Failed to retrieve Twilio Flex articles with error ${response.status}`
+      );
+      return;
+    }
+
+    let data = response.data;
+    for (const article of data["articles"]) {
+      downloadImage(brand, article.id);
+      log.push(article);
+    }
+    url = data.next_page;
   }
+
   console.log("FINISHED EXPORTING TWILIO FLEX");
   setTimeout(exportAmazonConnect, 60000);
 }
@@ -85,29 +86,30 @@ async function exportAmazonConnect() {
   let brand = "prftamazonconnect";
   let url = `https://${brand}.zendesk.com/api/v2/help_center/en-us/articles`;
   let response;
-  try {
-    while (url) {
+  while (url) {
+    try {
       response = await axios.get(url, {
         headers: { Authorization: `Basic ${encoded}` },
       });
-
-      if (response.status != 200) {
-        console.log(
-          `Failed to retrieve Amazon Connect articles with error ${response.status}`
-        );
-        return;
-      }
-
-      let data = response.data;
-      for (const article of data["articles"]) {
-        downloadImage(brand, article.id);
-        log.push(article);
-      }
-      url = data.next_page;
+    } catch {
+      (err) => console.log("ERROR IN AMAZON CONNECT", err);
     }
-  } catch {
-    (e) => console.log("ERROR IN AMAZON CONNECT", e);
+
+    if (response.status != 200) {
+      console.log(
+        `Failed to retrieve Amazon Connect articles with error ${response.status}`
+      );
+      return;
+    }
+
+    let data = response.data;
+    for (const article of data["articles"]) {
+      downloadImage(brand, article.id);
+      log.push(article);
+    }
+    url = data.next_page;
   }
+
   console.log("FINISHED EXPORTING AMAZON CONNECT");
   setTimeout(exportMso, 60000);
 }
@@ -116,28 +118,28 @@ async function exportMso() {
   let brand = "prft-mso";
   let url = `https://${brand}.zendesk.com/api/v2/help_center/en-us/articles`;
   let response;
-  try {
-    while (url) {
+  while (url) {
+    try {
       response = await axios.get(url, {
         headers: { Authorization: `Basic ${encoded}` },
-      }).catch((err) => console.log("ERROR IN MSO", err));
-
-      if (response.status != 200) {
-        console.log(
-          `Failed to retrieve MSO articles with error ${response.status}`
-        );
-        return;
-      }
-
-      let data = response.data;
-      for (const article of data["articles"]) {
-        downloadImage(brand, article.id);
-        log.push(article);
-      }
-      url = data.next_page;
+      });
+    } catch {
+      (err) => console.log("ERROR IN MSO", err);
     }
-  } catch {
-    (e) => console.log("ERRORRR", e);
+
+    if (response.status != 200) {
+      console.log(
+        `Failed to retrieve MSO articles with error ${response.status}`
+      );
+      return;
+    }
+
+    let data = response.data;
+    for (const article of data["articles"]) {
+      downloadImage(brand, article.id);
+      log.push(article);
+    }
+    url = data.next_page;
   }
   console.log("FINISHED EXPORTING MSO");
   setTimeout(exportConverge, 60000);
@@ -147,10 +149,15 @@ async function exportConverge() {
   let brand = "prft-converge";
   let url = `https://${brand}.zendesk.com/api/v2/help_center/en-us/articles`;
   let response;
+
   while (url) {
+    try {
       response = await axios.get(url, {
         headers: { Authorization: `Basic ${encoded}` },
-      }).catch((err) => console.log("ERROR IN CONVERGE", err));
+      });
+    } catch {
+      (err) => console.log("ERROR IN CONVERGE", err);
+    }
 
     if (response.status != 200) {
       console.log(
@@ -176,10 +183,13 @@ async function exportClarityConnect() {
   let url = `https://${brand}.zendesk.com/api/v2/help_center/en-us/articles`;
   let response;
   while (url) {
-    response = await axios
-      .get(url, {
+    try {
+      response = await axios.get(url, {
         headers: { Authorization: `Basic ${encoded}` },
-      }).catch((err) => console.log("ERROR IN CLARITY CONNECT", err));
+      });
+    } catch {
+      (err) => console.log("ERROR IN CLARITY CONNECT", err);
+    }
     if (response.status != 200) {
       console.log(
         `Failed to retrieve Clarity Connect articles with error ${response.status}`
@@ -188,8 +198,6 @@ async function exportClarityConnect() {
     }
     let data = response.data;
     for (const article of data["articles"]) {
-      // setTimeout(() => {  console.log("World!"); }, 1000);
-      // downloadImage(brand, article.id);
       clarityArticles.push(article);
       log.push(article);
     }
@@ -205,7 +213,6 @@ async function exportClarityConnect() {
   }
 
   setTimeout(exportClarityConnect2, 60000, secondHalf);
-
 }
 
 async function exportClarityConnect2(secondHalf) {
@@ -231,8 +238,6 @@ async function exportClarityConnect2(secondHalf) {
     }
     return;
   });
-
-
 }
 
 exportTwilioFlex();
