@@ -22,7 +22,7 @@ async function downloadImage(brand, articleId) {
       .get(url, {
         headers: { Authorization: `Basic ${encoded}` },
       })
-      .catch((err) => console.log("ERRORRR", err));
+      .catch((err) => console.log("ERROR IN downloadImage", err));
 
     let attachmentsArray = response.data.article_attachments;
     if (attachmentsArray.length >= 1) {
@@ -93,7 +93,7 @@ async function exportAmazonConnect() {
 
       if (response.status != 200) {
         console.log(
-          `Failed to retrieve Twilio Flex articles with error ${response.status}`
+          `Failed to retrieve Amazon Connect articles with error ${response.status}`
         );
         return;
       }
@@ -124,7 +124,7 @@ async function exportMso() {
 
       if (response.status != 200) {
         console.log(
-          `Failed to retrieve Twilio Flex articles with error ${response.status}`
+          `Failed to retrieve MSO articles with error ${response.status}`
         );
         return;
       }
@@ -154,7 +154,7 @@ async function exportConverge() {
 
     if (response.status != 200) {
       console.log(
-        `Failed to retrieve Twilio Flex articles with error ${response.status}`
+        `Failed to retrieve Converge articles with error ${response.status}`
       );
       return;
     }
@@ -182,7 +182,7 @@ async function exportClarityConnect() {
       }).catch((err) => console.log("ERROR IN CLARITY CONNECT", err));
     if (response.status != 200) {
       console.log(
-        `Failed to retrieve Twilio Flex articles with error ${response.status}`
+        `Failed to retrieve Clarity Connect articles with error ${response.status}`
       );
       return;
     }
